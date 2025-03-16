@@ -4,13 +4,33 @@ class HTMLNode():
         self.value = value
         self.children = children
         self.props = props
+
     def to_html(self):
         raise NotImplementedError()
+    
     def props_to_html(self):
         string_attr = ""
         for prop in self.props:
             string_attr += prop + '="' + self.props[prop] + '" '
         string_attr = string_attr.rstrip()
         return string_attr
+    
     def __repr__(self):
         return f"Tag: {self.tag}\nValue: {self.value}\nChildren: {self.children}\nProps: {self.props}"
+    
+class LeafNode(HTMLNode):
+    def __init__(self, tag, value, props = None):
+        super().__init__(tag, value, None, props)
+
+    def to_html(self):
+        if self.value == None:
+            raise ValueError("No value")
+        if self.tag == None:
+            return self.value
+        prop_text = ""
+        if self.props != None:
+            for prop in self.props:
+                prop_text += " " + prop + '="' + self.props[prop] + '"'
+        return "<" + self.tag + prop_text + ">" + self.value + "</" + self.tag + ">"
+
+
