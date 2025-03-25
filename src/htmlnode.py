@@ -33,4 +33,17 @@ class LeafNode(HTMLNode):
                 prop_text += " " + prop + '="' + self.props[prop] + '"'
         return "<" + self.tag + prop_text + ">" + self.value + "</" + self.tag + ">"
 
-
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props = None):
+        super().__init__(tag, None, children, props)
+    
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("No tag")
+        if self.children == None:
+            raise ValueError("No children")
+        parent_string = "<" + self.tag + ">"
+        for child in self.children:
+            parent_string += child.to_html()
+        parent_string += "</" + self.tag + ">"
+        return parent_string
