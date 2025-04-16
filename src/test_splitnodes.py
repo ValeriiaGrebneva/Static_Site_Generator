@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from split_to_nodes import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from split_to_nodes import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 
 class TestSplitNodes(unittest.TestCase):
     def test_eq_text(self):
@@ -110,6 +110,113 @@ class TestSplitNodes(unittest.TestCase):
             "This is text with a [link](Link)"
         )
         self.assertListEqual([], matches)
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image1](link1) and second ![image2](link2) - done!",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image1", TextType.IMAGE, "link1"),
+                TextNode(" and second ", TextType.TEXT),
+                TextNode("image2", TextType.IMAGE, "link2"),
+                TextNode(" - done!", TextType.TEXT)
+            ],
+            new_nodes,
+        )
+
+    def test_split_images_only(self):
+        node = TextNode(
+            "![image1](link1)![image2](link2)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("image1", TextType.IMAGE, "link1"),
+                TextNode("image2", TextType.IMAGE, "link2")
+            ],
+            new_nodes,
+        )
+
+    def test_split_images_empty(self):
+        node = TextNode(
+            "This is text without images but with a [link](Link)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text without images but with a [link](Link)", TextType.TEXT)
+            ],
+            new_nodes,
+        )
+
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with a [link1](Link1) and second [link2](Link2) - done!",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.TEXT),
+                TextNode("link1", TextType.LINK, "Link1"),
+                TextNode(" and second ", TextType.TEXT),
+                TextNode("link2", TextType.LINK, "Link2"),
+                TextNode(" - done!", TextType.TEXT)
+            ],
+            new_nodes,
+        )
+
+    def test_split_links_only(self):
+        node = TextNode(
+            "[link1](Link1)[link2](Link2)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("link1", TextType.LINK, "Link1"),
+                TextNode("link2", TextType.LINK, "Link2")
+            ],
+            new_nodes,
+        )
+
+    def test_split_links_empty(self):
+        node = TextNode(
+            "This is text without links but with an ![image](Link)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text without links but with an ![image](Link)", TextType.TEXT)
+            ],
+            new_nodes,
+        )
+
+    def test_split_images_links(self):
+        node = TextNode(
+            "This is text with an ![image](link of the image) and a [link](Link) - done!",
+            TextType.TEXT,
+        )
+        new_nodes1 = split_nodes_link(split_nodes_image([node]))
+        new_nodes2 = split_nodes_image(split_nodes_link([node]))
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "link of the image"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "Link"),
+                TextNode(" - done!", TextType.TEXT)
+            ],
+            new_nodes1,
+            new_nodes2
+        )
 
 if __name__ == "__main__":
     unittest.main()

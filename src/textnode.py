@@ -17,7 +17,7 @@ class TextNode():
     def __eq__(self, text_node):
         return self.text == text_node.text and self.text_type == text_node.text_type and self.url == text_node.url
     def __repr__(self):
-        return "TextNode(" + self.text + ", " + self.text_type.value + ", " + self.url + ")"
+        return "TextNode(" + self.text + ", " + self.text_type.value + ", " + str(self.url) + ")"
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:

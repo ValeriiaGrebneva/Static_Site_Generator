@@ -1,7 +1,7 @@
 from textnode import TextNode
-print("hello world")
+from split_to_nodes import split_nodes_image
 
 def main():
-    Node = TextNode("some text", "bold", "URL")
-    print(Node)
+    pass
+
 main()

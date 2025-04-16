@@ -24,4 +24,44 @@ def extract_markdown_images(text):
     return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
 
 def extract_markdown_links(text):
-    return re.findall(r"[^!]\[(.*?)\]\((.*?)\)", text)
+    result = re.findall(r"^\[(.*?)\]\((.*?)\)", text)
+    result.extend(re.findall(r"[^!]\[(.*?)\]\((.*?)\)", text))
+    return result
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.TEXT:
+            images = extract_markdown_images(node.text)
+            count_start = 0
+            for image in images:
+                image_text = "![" + image[0] + "](" + image[1] + ")"
+                count_end = count_start + node.text[count_start:].find(image_text)
+                if count_start != count_end:
+                    new_nodes.append(TextNode(node.text[count_start:count_end], TextType.TEXT))
+                new_nodes.append(TextNode(image[0], TextType.IMAGE, image[1]))
+                count_start = count_end + len(image_text)
+            if count_start != len(node.text):
+                new_nodes.append(TextNode(node.text[count_start:], TextType.TEXT))
+        else:
+            new_nodes.append(node)
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.TEXT:
+            links = extract_markdown_links(node.text)
+            count_start = 0
+            for link in links:
+                link_text = "[" + link[0] + "](" + link[1] + ")"
+                count_end = count_start + node.text[count_start:].find(link_text)
+                if count_start != count_end:
+                    new_nodes.append(TextNode(node.text[count_start:count_end], TextType.TEXT))
+                new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
+                count_start = count_end + len(link_text)
+            if count_start != len(node.text):
+                new_nodes.append(TextNode(node.text[count_start:], TextType.TEXT))
+        else:
+            new_nodes.append(node)
+    return new_nodes
