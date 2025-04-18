@@ -35,3 +35,16 @@ def text_node_to_html_node(text_node):
             return LeafNode("img", "", {"src": text_node.url, "alt":text_node.text})
         case _:
             raise Exception("Not correct type of TextNode")
+        
+def markdown_to_blocks(markdown):
+    blocks = markdown.split("\n\n")
+    return_blocks = []
+    for block in blocks:
+        if block[0:2] == "\n":
+            block = block[2:]
+        block = block.strip()
+        block = "\n".join(list(map(lambda x: x.strip(),block.split("\n"))))
+        if block != "":
+            return_blocks.append(block)
+    return return_blocks
+    
