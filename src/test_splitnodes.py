@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, markdown_to_blocks
+from textnode import TextNode, TextType, BlockType, markdown_to_blocks, block_to_block_type
 from split_to_nodes import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
 
 class TestSplitNodes(unittest.TestCase):
@@ -279,6 +279,82 @@ class TestSplitNodes(unittest.TestCase):
                 "- This is a list\n- with items",
             ],
         )
+
+    def test_blocks_to_types_heading(self):
+        md1 = """# Heading"""
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.HEADING)
+
+    def test_blocks_to_types_heading_no(self):
+        md1 = """##Not heading because no space"""
+        block_type1 = block_to_block_type(md1)
+        md2 = """####### Not heading because too many #"""
+        block_type2 = block_to_block_type(md2)
+        self.assertEqual(block_type1, block_type2, BlockType.PARAGRAPH)
+
+    def test_blocks_to_types_code(self):
+        md1 = """```Code```"""
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.CODE)
+
+    def test_blocks_to_types_code_no(self):
+        md1 = """``Not code because wrong amount of backticks```"""
+        block_type1 = block_to_block_type(md1)
+        md2 = """``````"""
+        block_type2 = block_to_block_type(md2)
+        self.assertEqual(block_type1, block_type2, BlockType.PARAGRAPH)
+
+    def test_blocks_to_types_quote(self):
+        md1 = """>This is a quote
+        >with two lines"""
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.QUOTE)
+
+    def test_blocks_to_types_quote_no(self):
+        md1 = """>Not quote because the next line is without >
+        """
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.PARAGRAPH)
+
+    def test_blocks_to_types_unordered_list(self):
+        md1 = """- List 1
+        - List2
+        - List3"""
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.UNORDERED_LIST)
+
+    def test_blocks_to_types_unordered_list_no(self):
+        md1 = """- Not unordered_list because
+        -no space"""
+        block_type1 = block_to_block_type(md1)
+        md2 = """- No dash and space
+        """
+        block_type2 = block_to_block_type(md2)
+        self.assertEqual(block_type1, BlockType.PARAGRAPH)
+        self.assertEqual(block_type2, BlockType.PARAGRAPH)
+
+    def test_blocks_to_types_ordered_list(self):
+        md1 = """1. List 1
+        2. List2
+        3. List3"""
+        block_type1 = block_to_block_type(md1)
+        self.assertEqual(block_type1, BlockType.ORDERED_LIST)
+
+    def test_blocks_to_types_ordered_list_no(self):
+        md1 = """1. Not ordered_list because
+        2.no space"""
+        block_type1 = block_to_block_type(md1)
+        md2 = """1. No number after
+        just text"""
+        block_type2 = block_to_block_type(md2)
+        md3 = """1. No space after number 
+        2.just text"""
+        block_type3 = block_to_block_type(md3)
+        md4 = """1. Wrong numbers
+        3. just text"""
+        block_type4 = block_to_block_type(md4)
+        self.assertEqual(block_type1, block_type2, BlockType.PARAGRAPH)
+        self.assertEqual(block_type3, block_type4, BlockType.PARAGRAPH)
 
 if __name__ == "__main__":
     unittest.main()

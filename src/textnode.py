@@ -1,5 +1,6 @@
 from enum import Enum
 from htmlnode import LeafNode
+import re
 
 class TextType(Enum):
     TEXT = "text"
@@ -8,6 +9,14 @@ class TextType(Enum):
     CODE = "code"
     LINK = "link"
     IMAGE = "image"
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered list"
+    ORDERED_LIST = "ordered list"
 
 class TextNode():
     def __init__(self, text, text_type, url = None):
@@ -47,4 +56,63 @@ def markdown_to_blocks(markdown):
         if block != "":
             return_blocks.append(block)
     return return_blocks
+
+def block_to_block_type(block_original):
+    helper = block_original.strip(" ")
+    check_start = False
+    check_end = False
+    if len(helper) >=2 and helper[:2] == "\n":
+        check_start = True
+    if len(helper) >=2 and helper[-2:] == "\n":
+        check_end = True
+    block = "\n".join(list(map(lambda x: x.strip(),helper.split("\n"))))
+    if check_start:
+        block.insert(0, "\n")
+    if check_end:
+        block.append("\n")
+
+    if block[0] == "#":
+        count = 1
+        while block[count] == "#":
+            count += 1
+        if block[count] == " " and count <= 6:
+            return BlockType.HEADING
+        
+    if len(block) >= 7 and block[0:3] == "```" and block[-3:] == "```":
+        return BlockType.CODE
+    
+    if block[0] == ">":
+        wrong = re.findall(r"\n[^>]", block)
+        if len(block) >= 2 and block[-1:] == "\n":
+            wrong.append(False)
+        if wrong == []:
+
+            return BlockType.QUOTE
+    if len(block) >= 2 and block[0:2] == "- ":
+        wrong = re.findall(r"\n[^-]", block)
+        wrong.extend(re.findall(r"\n-[^ ]", block))
+        if len(block) >= 2 and block[-1:] == "\n":
+            wrong.append(False)
+        if wrong == []:
+            return BlockType.UNORDERED_LIST
+        
+    if len(block) >= 3 and block[0:3] == "1. ":
+        count = 1
+        i = 0
+        good = True
+        while i < len(block) - 1:
+            if block[i:i+2] == "\n":
+                number = len(str(count))
+                if i + 2 + number < len(block) and block[i+2:i+3+number] == str(count) + ". ":
+                    i = i + 3 + number
+                    count += 1
+                else:
+                    good = False
+                    break
+            i += 1
+        if "\n" not in block[i:] and good:
+            return BlockType.ORDERED_LIST
+        
+    return BlockType.PARAGRAPH
+
     
