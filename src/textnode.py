@@ -86,8 +86,8 @@ def block_to_block_type(block_original):
         if len(block) >= 2 and block[-1:] == "\n":
             wrong.append(False)
         if wrong == []:
-
             return BlockType.QUOTE
+        
     if len(block) >= 2 and block[0:2] == "- ":
         wrong = re.findall(r"\n[^-]", block)
         wrong.extend(re.findall(r"\n-[^ ]", block))
@@ -114,5 +114,3 @@ def block_to_block_type(block_original):
             return BlockType.ORDERED_LIST
         
     return BlockType.PARAGRAPH
-
-    
