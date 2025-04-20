@@ -46,7 +46,8 @@ def text_node_to_html_node(text_node):
             raise Exception("Not correct type of TextNode")
         
 def markdown_to_blocks(markdown):
-    blocks = markdown.split("\n\n")
+    markdown_stripped = "\n".join(list(map(lambda x: x.strip(),markdown.split("\n"))))
+    blocks = markdown_stripped.split("\n\n")
     return_blocks = []
     for block in blocks:
         if block[0:2] == "\n":

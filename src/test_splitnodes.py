@@ -389,6 +389,20 @@ class TestSplitNodes(unittest.TestCase):
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
     
+    def test_headings(self):
+        md = """
+    # Heading 1
+    
+    ### Heading 3
+
+    ###### Heading 6
+    """
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Heading 1</h1><h3>Heading 3</h3><h6>Heading 6</h6></div>", 
+        )
     
 if __name__ == "__main__":
     unittest.main()
