@@ -26,7 +26,7 @@ def markdown_to_html_node(markdown):
             case BlockType.CODE:
                 new_node = ParentNode("pre", [LeafNode("code", block[3:-3].lstrip())])
             case BlockType.QUOTE:
-                new_node = ParentNode("blockquote", text_to_children([TextNode(block[1:].replace("\n>", "").replace("\n", ""), TextType.TEXT)]))
+                new_node = ParentNode("blockquote", text_to_children([TextNode(block[1:].replace("\n>", "\n"), TextType.TEXT)]))
             case BlockType.UNORDERED_LIST:
                 items = block.split("- ")
                 parents_inside = []

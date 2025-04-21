@@ -393,15 +393,29 @@ class TestSplitNodes(unittest.TestCase):
         md = """
     # Heading 1
     
-    ### Heading 3
+    ### Heading _3_
 
-    ###### Heading 6
+    ###### Heading **6**
     """
         node = markdown_to_html_node(md)
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1>Heading 1</h1><h3>Heading 3</h3><h6>Heading 6</h6></div>", 
+            "<div><h1>Heading 1</h1><h3>Heading <i>3</i></h3><h6>Heading <b>6</b></h6></div>", 
+        )
+
+    def test_quotes(self):
+        md = """
+    >Quote 1.1
+    >Quote 1.2
+    
+    >Quote 2 with **bold** and _italic_
+    """
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>Quote 1.1\nQuote 1.2</blockquote><blockquote>Quote 2 with <b>bold</b> and <i>italic</i></blockquote></div>", 
         )
     
 if __name__ == "__main__":
