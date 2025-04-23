@@ -319,8 +319,8 @@ class TestSplitNodes(unittest.TestCase):
 
     def test_blocks_to_types_unordered_list(self):
         md1 = """- List 1
-        - List2
-        - List3"""
+        - List 2
+        - List 3"""
         block_type1 = block_to_block_type(md1)
         self.assertEqual(block_type1, BlockType.UNORDERED_LIST)
 
@@ -386,7 +386,7 @@ class TestSplitNodes(unittest.TestCase):
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff</code></pre></div>",
         )
     
     def test_headings(self):
@@ -417,6 +417,67 @@ class TestSplitNodes(unittest.TestCase):
             html,
             "<div><blockquote>Quote 1.1\nQuote 1.2</blockquote><blockquote>Quote 2 with <b>bold</b> and <i>italic</i></blockquote></div>", 
         )
+
+    def test_unordered_list(self):
+        md = """
+    - List 1.1
+    - List 1.2
+    - List **1.3**
+
+    - List 2
+    """
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>List 1.1</li><li>List 1.2</li><li>List <b>1.3</b></li></ul><ul><li>List 2</li></ul></div>", 
+        )
+
+    def test_ordered_list(self):
+        md = """
+    1. List 1.1
+    2. List 1.2
+    3. List **1.3**
+
+    1. List 2
+    """
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>List 1.1</li><li>List 1.2</li><li>List <b>1.3</b></li></ol><ol><li>List 2</li></ol></div>", 
+        )
     
+    def test_alltogether(self):
+        md = """
+    #### Heading 4!
+
+    This is **bolded** paragraph
+
+    This is another [paragraph](link) with _italic_ text and `code` here.
+    This is the same ![paragraph](link) on a new line
+
+    
+    - This is a list
+    - with items
+    - and `code`
+
+    1. This is an ordered list
+    2. Several items
+
+    ```
+    Code should be also here
+    ```
+
+    >Quotes
+    >More quotes
+    """
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            '<div><h4>Heading 4!</h4><p>This is <b>bolded</b> paragraph</p><p>This is another <a href="link">paragraph</a> with <i>italic</i> text and <code>code</code> here. This is the same <img src="link" alt="paragraph"> on a new line</p><ul><li>This is a list</li><li>with items</li><li>and <code>code</code></li></ul><ol><li>This is an ordered list</li><li>Several items</li></ol><pre><code>Code should be also here</code></pre><blockquote>Quotes\nMore quotes</blockquote></div>')
+
+
 if __name__ == "__main__":
     unittest.main()

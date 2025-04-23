@@ -24,18 +24,18 @@ def markdown_to_html_node(markdown):
                     count += 1
                 new_node = ParentNode(f"h{count}", text_to_children([TextNode(block[count + 1:], TextType.TEXT)]))
             case BlockType.CODE:
-                new_node = ParentNode("pre", [LeafNode("code", block[3:-3].lstrip())])
+                new_node = ParentNode("pre", [LeafNode("code", block[3:-3].strip())])
             case BlockType.QUOTE:
                 new_node = ParentNode("blockquote", text_to_children([TextNode(block[1:].replace("\n>", "\n"), TextType.TEXT)]))
             case BlockType.UNORDERED_LIST:
                 items = block.split("- ")
                 parents_inside = []
                 for item in items:
-                    parents_inside.append(ParentNode("li", text_to_children([TextNode(item.strip(), TextType.TEXT)])))
+                    if item.strip() != "":
+                        parents_inside.append(ParentNode("li", text_to_children([TextNode(item.strip(), TextType.TEXT)])))
                 new_node = ParentNode("ul", parents_inside)
             case BlockType.ORDERED_LIST:
-                copy_block = block[3:]
-                items = copy_block.split("\n")
+                items = block.split("\n")
                 parents_inside = []
                 for item in items:
                     parents_inside.append(ParentNode("li", text_to_children([TextNode(item[3:], TextType.TEXT)])))

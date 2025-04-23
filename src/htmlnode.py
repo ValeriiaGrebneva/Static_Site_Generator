@@ -31,6 +31,8 @@ class LeafNode(HTMLNode):
         if self.props != None:
             for prop in self.props:
                 prop_text += " " + prop + '="' + self.props[prop] + '"'
+        if self.tag == "img":
+            return "<" + self.tag + prop_text + ">" + self.value
         return "<" + self.tag + prop_text + ">" + self.value + "</" + self.tag + ">"
 
 class ParentNode(HTMLNode):
