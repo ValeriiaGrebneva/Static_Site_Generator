@@ -54,7 +54,6 @@ def markdown_to_blocks(markdown):
             block = block[2:]
         block = block.strip()
         block = "\n".join(list(map(lambda x: x.strip(),block.split("\n"))))
-        block.strip()
         if block != "":
             return_blocks.append(block)
     return return_blocks
